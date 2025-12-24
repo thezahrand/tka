@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Hasil TKA - MAN Insan Cendekia Serpong</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #004d40; /* Warna Hijau Kemenag/Madrasah */
+            --secondary-color: #ffc107;
+        }
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #00695c 100%);
+            color: white;
+            padding: 50px 0 80px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .main-container {
+            margin-top: -60px;
+        }
+        .card-search {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .card-result {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: none; /* Sembunyikan default */
+            animation: fadeIn 0.5s ease;
+        }
+        .result-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+        }
+        .score-card {
+            background-color: #f8f9fa;
+            border-left: 5px solid var(--secondary-color);
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+        .score-card:hover {
+            transform: translateY(-2px);
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .score-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-check {
+            background-color: var(--secondary-color);
+            color: #000;
+            font-weight: bold;
+            border: none;
+        }
+        .btn-check:hover {
+            background-color: #e0a800;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-section text-center">
+        <div class="container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Logo_Kementerian_Agama_Republik_Indonesia_baru.png/1200px-Logo_Kementerian_Agama_Republik_Indonesia_baru.png" alt="Logo Kemenag" style="height: 60px; margin-bottom: 15px; filter: brightness(0) invert(1);">
+            <h2 class="fw-bold">Hasil Tes Kemampuan Akademik</h2>
+            <p class="lead mb-0">MAN Insan Cendekia Serpong - Tahun 2025</p>
+        </div>
+    </div>
+
+    <div class="container main-container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                
+                <div class="card card-search p-4 mb-4">
+                    <label for="nisnInput" class="form-label fw-bold"><i class="fas fa-search me-2"></i>Cari Data Siswa</label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" id="nisnInput" class="form-control" placeholder="Masukkan NISN (Cth: 0089126771)">
+                        <button class="btn btn-check" onclick="cariData()">CEK NILAI</button>
+                    </div>
+                    <div id="errorMessage" class="alert alert-danger mt-3 d-none">
+                        <i class="fas fa-exclamation-circle me-2"></i>NISN tidak ditemukan. Pastikan nomor sudah benar.
+                    </div>
+                </div>
+
+                <div id="resultSection" class="card card-result mb-5">
+                    <div class="result-header text-center">
+                        <h3 id="resNama" class="mb-1 fw-bold">NAMA SISWA</h3>
+                        <p class="mb-0 opacity-75">NISN: <span id="resNisn">1234567890</span></p>
+                    </div>
+                    <div class="card-body p-4">
+                        
+                        <h5 class="fw-bold text-secondary mb-3"><i class="fas fa-book me-2"></i>Mata Pelajaran Wajib</h5>
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="score-card text-center">
+                                    <div class="score-label">B. INDO</div>
+                                    <div class="score-value" id="valIndo">00.00</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="score-card text-center">
+                                    <div class="score-label">MTK</div>
+                                    <div class="score-value" id="valMat">00.00</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="score-card text-center">
+                                    <div class="score-label">B. ING</div>
+                                    <div class="score-value" id="valIng">00.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-secondary mb-3 mt-2"><i class="fas fa-flask me-2"></i>Mata Pelajaran Pilihan</h5>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="score-card text-center">
+                                    <div class="score-label" id="lblPil1">PILIHAN 1</div>
+                                    <div class="score-value" id="valPil1">00.00</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="score-card text-center">
+                                    <div class="score-label" id="lblPil2">PILIHAN 2</div>
+                                    <div class="score-value" id="valPil2">00.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-2 text-center small">
+                            <i class="fas fa-info-circle me-1"></i> Data bersumber dari DKHTKA Kanwil Kemenag Prov. Banten (T3-25-30-04-0174)
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button class="btn btn-outline-secondary" onclick="resetForm()">Cari Siswa Lain</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === DATABASE SISWA ===
+        // Saya memasukkan data siswa Halaman 1 (No 1-12) dan sampel Halaman 2 sebagai contoh.
+        // Format: NISN (tanpa spasi)
+        const databaseSiswa = [
+            { nisn: "0089126771", nama: "SITI RAQIQA FAHHAMA", indo: "65.38", mat: "81.28", ing: "46.19", p1: "Kimia", v1: "61.59", p2: "Biologi", v2: "78.49" },
+            { nisn: "0072069972", nama: "DINDA ALVINIA HARTONO", indo: "62.28", mat: "76.32", ing: "56.14", p1: "Kimia", v1: "60.87", p2: "Biologi", v2: "81.90" },
+            { nisn: "3083910808", nama: "KEISA ANINDYA JAGADDITHA", indo: "80.14", mat: "59.52", ing: "57.66", p1: "Kimia", v1: "65.11", p2: "Biologi", v2: "90.26" },
+            { nisn: "0087305481", nama: "KAMILLA AISHA OCTARAFA", indo: "63.37", mat: "72.23", ing: "58.01", p1: "Kimia", v1: "55.38", p2: "Biologi", v2: "76.88" },
+            { nisn: "0084126329", nama: "ATHAILLAH BAGAS RACHMANSYAH", indo: "81.29", mat: "60.53", ing: "64.89", p1: "Ekonomi", v1: "67.02", p2: "Mat Lanjut", v2: "59.18" },
+            { nisn: "0086800234", nama: "RAHMA KUMALA", indo: "80.24", mat: "54.59", ing: "60.51", p1: "Kimia", v1: "54.59", p2: "Biologi", v2: "69.67" },
+            { nisn: "0079984434", nama: "ALFARREL RAHANDA PASHA", indo: "84.71", mat: "65.18", ing: "54.44", p1: "Kimia", v1: "62.53", p2: "Biologi", v2: "90.35" },
+            { nisn: "0089339888", nama: "SARAH MUTHIA HENDRAWAN", indo: "91.09", mat: "69.62", ing: "66.01", p1: "Kimia", v1: "54.53", p2: "Biologi", v2: "84.80" },
+            { nisn: "0075374957", nama: "ARDHI HASAN ZEIN", indo: "57.56", mat: "77.38", ing: "59.68", p1: "Kimia", v1: "49.04", p2: "Biologi", v2: "82.68" },
+            { nisn: "0081566736", nama: "MUHAMMAD HAKIM HADIANDARU", indo: "74.31", mat: "59.03", ing: "58.82", p1: "Kimia", v1: "45.02", p2: "Biologi", v2: "60.33" },
+            { nisn: "0088866157", nama: "MOHAMMAD RAIHAN AKMAL WINARTO", indo: "77.06", mat: "85.04", ing: "52.03", p1: "Fisika", v1: "66.96", p2: "Biologi", v2: "83.18" },
+            { nisn: "0141174217", nama: "RESYIFA SHAHNAZ ANDINI", indo: "72.98", mat: "78.35", ing: "56.33", p1: "Kimia", v1: "62.95", p2: "Biologi", v2: "73.65" },
+            // Contoh Halaman 2
+            { nisn: "3089311100", nama: "ASMA NABILA FINAJIHA", indo: "88.74", mat: "65.58", ing: "53.40", p1: "Kimia", v1: "53.35", p2: "Biologi", v2: "85.62" },
+            { nisn: "0088189888", nama: "RATU UTAMI DEWI", indo: "88.19", mat: "62.09", ing: "66.39", p1: "Kimia", v1: "58.44", p2: "Biologi", v2: "81.56" }
+        ];
+
+        function cariData() {
+            // Ambil input dan bersihkan spasi
+            const inputNISN = document.getElementById('nisnInput').value.trim();
+            const resultSection = document.getElementById('resultSection');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Cari di database
+            const siswa = databaseSiswa.find(data => data.nisn === inputNISN);
+
+            if (siswa) {
+                // Sembunyikan error jika sebelumnya muncul
+                errorMessage.classList.add('d-none');
+                
+                // Isi data ke HTML
+                document.getElementById('resNama').innerText = siswa.nama;
+                document.getElementById('resNisn').innerText = siswa.nisn;
+                
+                document.getElementById('valIndo').innerText = siswa.indo;
+                document.getElementById('valMat').innerText = siswa.mat;
+                document.getElementById('valIng').innerText = siswa.ing;
+
+                document.getElementById('lblPil1').innerText = siswa.p1;
+                document.getElementById('valPil1').innerText = siswa.v1;
+                
+                document.getElementById('lblPil2').innerText = siswa.p2;
+                document.getElementById('valPil2').innerText = siswa.v2;
+
+                // Tampilkan hasil
+                resultSection.style.display = 'block';
+            } else {
+                // Tampilkan error, sembunyikan hasil
+                resultSection.style.display = 'none';
+                errorMessage.classList.remove('d-none');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('nisnInput').value = '';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('nisnInput').focus();
+        }
+    </script>
+</body>
+</html>
