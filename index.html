@@ -3,48 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cek Nilai TKA</title>
+    <title>Cek Nilai TKA wowow</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+<body class="bg-slate-50 min-h-screen flex flex-col items-center p-4 md:p-10">
 
-    <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">Cek Nilai TKA ERC</h1>
-        
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Masukkan NISN</label>
-            <input type="text" id="nisnInput" placeholder="Disini" 
-                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-slate-800">CEK TKA ERCAVA ☄️</h1>
+            <p class="text-slate-500 mt-2">Masukkan NISN untuk melihat detail nilai</p>
         </div>
         
-        <button onclick="cariNilai()" 
-            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
-            Cari Nilai
-        </button>
-
-        <div id="result" class="mt-8 hidden">
-            <hr class="mb-6">
-            <h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Hasil Pencarian:</h2>
-            <div id="dataOutput" class="space-y-3 text-sm">
-                </div>
+        <div class="flex gap-2 mb-6">
+            <input type="text" id="nisnInput" placeholder="Masukkan 10 digit NISN..." 
+                class="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+            <button onclick="cariNilai()" 
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-md">
+                Cari
+            </button>
         </div>
 
-        <div id="error" class="mt-4 text-red-500 text-center hidden">
-            Data tidak ditemukan. Pastikan NISN benar.
+        <div id="result" class="hidden animate-fade-in">
+            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <p class="text-sm text-blue-600 font-medium uppercase tracking-wider">Nama Peserta</p>
+                <h2 id="outNama" class="text-xl font-bold text-slate-800"></h2>
+                <p id="outTTL" class="text-slate-600 text-sm"></p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b-2 border-slate-200">
+                            <th class="py-3 px-2 text-slate-600 font-semibold">Mata Pelajaran</th>
+                            <th class="py-3 px-2 text-slate-600 font-semibold text-right">Nilai & Predikat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="outNilai" class="divide-y divide-slate-100">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="error" class="mt-4 p-4 bg-red-50 text-red-600 text-center rounded-lg hidden">
+            Data tidak ditemukan. Pastikan NISN yang dimasukkan benar.
         </div>
     </div>
 
     <script>
         let dataSiswa = [];
 
-        // Load data CSV saat halaman dibuka
+        // Load CSV (Gunakan nama file yang sesuai)
         window.onload = function() {
-            Papa.parse("data_nilai.csv", {
+            Papa.parse("progress (1).csv", {
                 download: true,
                 header: true,
+                skipEmptyLines: true,
                 complete: function(results) {
                     dataSiswa = results.data;
+                    console.log("Data Loaded:", dataSiswa.length, "rows");
                 }
             });
         };
@@ -53,30 +70,51 @@
             const input = document.getElementById('nisnInput').value.trim();
             const resultDiv = document.getElementById('result');
             const errorDiv = document.getElementById('error');
-            const output = document.getElementById('dataOutput');
+            const outNilai = document.getElementById('outNilai');
 
-            // Cari data berdasarkan NISN (asumsi NISN ada di bagian akhir kolom 'Nomor Peserta NISN')
+            // Cari NISN (mencocokkan 10 digit di dalam kolom Nomor Peserta NISN)
             const siswa = dataSiswa.find(row => {
-                return row['Nomor Peserta NISN'] && row['Nomor Peserta NISN'].includes(input);
+                const fullID = row['Nomor Peserta NISN'] || "";
+                return fullID.endsWith(input) && input !== "";
             });
 
-            if (siswa && input !== "") {
+            if (siswa) {
                 errorDiv.classList.add('hidden');
                 resultDiv.classList.remove('hidden');
                 
-                output.innerHTML = `
-                    <p><strong>Nama:</strong> ${siswa['Nama Peserta']}</p>
-                    <p><strong>B. Indonesia:</strong> ${siswa['Bahasa Indonesia'].replace('\n', ' ')}</p>
-                    <p><strong>Matematika:</strong> ${siswa['Matematika'].replace('\n', ' ')}</p>
-                    <p><strong>B. Inggris:</strong> ${siswa['Bahasa Inggris'].replace('\n', ' ')}</p>
-                    <p><strong>${siswa['Pilihan 1']}:</strong> ${siswa['_7'] || 'N/A'}</p>
-                    <p><strong>${siswa['Pilihan 2']}:</strong> ${siswa['_9'] || 'N/A'}</p>
-                `;
+                // Isi Header
+                document.getElementById('outNama').innerText = siswa['Nama Peserta'];
+                document.getElementById('outTTL').innerText = siswa['Tempat, Tanggal Lahir'].replace(/\n/g, ' ');
+
+                // Bersihkan & Isi Tabel Nilai
+                const listMapel = [
+                    { label: 'Bahasa Indonesia', key: 'Bahasa Indonesia' },
+                    { label: 'Matematika', key: 'Matematika' },
+                    { label: 'Bahasa Inggris', key: 'Bahasa Inggris' },
+                    { label: 'Mapel Pilihan 1', key: 'Pilihan 1' },
+                    { label: 'Mapel Pilihan 2', key: 'Pilihan 2' }
+                ];
+
+                outNilai.innerHTML = "";
+                listMapel.forEach(m => {
+                    let val = siswa[m.key] ? siswa[m.key].replace(/\n/g, ' ') : '-';
+                    outNilai.innerHTML += `
+                        <tr>
+                            <td class="py-4 px-2 font-medium text-slate-700">${m.label}</td>
+                            <td class="py-4 px-2 text-right text-slate-600">${val}</td>
+                        </tr>
+                    `;
+                });
             } else {
                 resultDiv.classList.add('hidden');
                 errorDiv.classList.remove('hidden');
             }
         }
     </script>
+
+    <style>
+        .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </body>
 </html>
